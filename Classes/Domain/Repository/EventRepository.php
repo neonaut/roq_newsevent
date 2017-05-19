@@ -1,4 +1,5 @@
 <?php
+namespace Roquin\RoqNewsevent\Domain\Repository;
 
 /**
  * Copyright (c) 2012, ROQUIN B.V. (C), http://www.roquin.nl
@@ -13,21 +14,23 @@
  * @subpackage roq_newsevent
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  */
-class Tx_RoqNewsevent_Domain_Repository_EventRepository extends Tx_News_Domain_Repository_NewsRepository {
+class EventRepository extends \GeorgRinger\News\Domain\Repository\NewsRepository
+{
 
     /**
      * Returns the constraint to determine if a news event is active or not (archived)
      *
-     * @param Tx_Extbase_Persistence_QueryInterface $query
-     * @return Tx_Extbase_Persistence_QOM_Constraint $constraint
+     * @param \TYPO3\CMS\Extbase\Persistence\QueryInterface $query
+     * @return \TYPO3\CMS\Extbase\Persistence\Generic\Qom\ConstraintInterface $constraint
      */
-    protected function createIsActiveConstraint(Tx_Extbase_Persistence_QueryInterface $query) {
-        /** @var $constraint Tx_Extbase_Persistence_QOM_Constraint */
-        $constraint = NULL;
-        $timestamp  = time(); // + date('Z');
+    protected function createIsActiveConstraint(\TYPO3\CMS\Extbase\Persistence\QueryInterface $query)
+    {
+        /** @var $constraint \TYPO3\CMS\Extbase\Persistence\Generic\Qom\ConstraintInterface */
+        $constraint = null;
+        $timestamp = time(); // + date('Z');
 
         $constraint = $query->logicalOr(
-            // future events:
+        // future events:
             $query->greaterThan('tx_roqnewsevent_startdate + tx_roqnewsevent_starttime', $timestamp),
             // current multiple day events:
             $query->logicalAnd(
@@ -39,6 +42,13 @@ class Tx_RoqNewsevent_Domain_Repository_EventRepository extends Tx_News_Domain_R
                 $query->lessThan('tx_roqnewsevent_startdate + tx_roqnewsevent_starttime', $timestamp),
                 $query->greaterThan('tx_roqnewsevent_startdate + tx_roqnewsevent_endtime', $timestamp),
                 $query->equals('tx_roqnewsevent_enddate', 0)
+            ),
+            // current single day event without time:
+            $query->logicalAnd(
+                $query->greaterThan('tx_roqnewsevent_startdate + 86399', $timestamp),
+                $query->equals('tx_roqnewsevent_starttime', 0),
+                $query->equals('tx_roqnewsevent_enddate', 0),
+                $query->equals('tx_roqnewsevent_endtime', 0)
             )
         );
 
@@ -46,14 +56,17 @@ class Tx_RoqNewsevent_Domain_Repository_EventRepository extends Tx_News_Domain_R
     }
 
     /**
-     * Returns an array of constraints created from a given demand object.
-     *
-     * @param Tx_Extbase_Persistence_QueryInterface $query
-     * @param Tx_News_Domain_Model_DemandInterface $demand
-     * @return array<Tx_Extbase_Persistence_QOM_Constraint>
+     * @param \TYPO3\CMS\Extbase\Persistence\QueryInterface $query
+     * @param \GeorgRinger\News\Domain\Model\DemandInterface $demand
+     * @return array
+     * @throws InvalidArgumentException
+     * @throws Exception
      */
-    protected function createConstraintsFromDemand(Tx_Extbase_Persistence_QueryInterface $query, Tx_News_Domain_Model_DemandInterface $demand) {
-        $constraints    = array();
+    protected function createConstraintsFromDemand(
+        \TYPO3\CMS\Extbase\Persistence\QueryInterface $query,
+        \GeorgRinger\News\Domain\Model\DemandInterface $demand
+    ) {
+        $constraints = array();
 
         if ($demand->getCategories() && $demand->getCategories() !== '0') {
             $constraints[] = $this->createCategoryConstraint(
@@ -134,7 +147,7 @@ class Tx_RoqNewsevent_Domain_Repository_EventRepository extends Tx_News_Domain_R
 
         // storage page
         if ($demand->getStoragePage() != 0) {
-            $pidList = \TYPO3\CMS\Core\Utility\GeneralUtility::intExplode(',', $demand->getStoragePage(), TRUE);
+            $pidList = \TYPO3\CMS\Core\Utility\GeneralUtility::intExplode(',', $demand->getStoragePage(), true);
             $constraints[] = $query->in('pid', $pidList);
         }
 
@@ -187,18 +200,18 @@ class Tx_RoqNewsevent_Domain_Repository_EventRepository extends Tx_News_Domain_R
             );
         }
 
-            // events only
+        // events only
         $constraints[] = $query->logicalAnd($query->equals('tx_roqnewsevent_is_event', 1));
 
-            // the event must have an event start date
+        // the event must have an event start date
         $constraints[] = $query->logicalAnd(
             $query->logicalNot(
                 $query->equals('tx_roqnewsevent_startdate', 0)
             )
         );
 
-            // Clean not used constraints
-        foreach($constraints as $key => $value) {
+        // Clean not used constraints
+        foreach ($constraints as $key => $value) {
             if (is_null($value)) {
                 unset($constraints[$key]);
             }
@@ -207,4 +220,3 @@ class Tx_RoqNewsevent_Domain_Repository_EventRepository extends Tx_News_Domain_R
         return $constraints;
     }
 }
-?>

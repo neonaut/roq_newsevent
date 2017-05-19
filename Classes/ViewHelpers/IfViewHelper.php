@@ -1,4 +1,5 @@
 <?php
+namespace Roquin\RoqNewsevent\ViewHelpers;
 
 /*                                                                        *
  * This script belongs to the FLOW3 package "Fluid".                      *
@@ -19,10 +20,13 @@
  *                                                                        *
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
 /**
  * This view helper implements an if/else condition.
- * @see Tx_Fluid_Core_Parser_SyntaxTree_ViewHelperNode::convertArgumentValue() to find see how boolean arguments are evaluated
+ *
+ * @see     Tx_Fluid_Core_Parser_SyntaxTree_ViewHelperNode::convertArgumentValue() to find see how boolean arguments are evaluated
  *
  * = Conditions =
  *
@@ -98,81 +102,78 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  * @api
  */
-class Tx_RoqNewsevent_ViewHelpers_IfViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractConditionViewHelper {
+class IfViewHelper extends \TYPO3\CMS\Fluid\Core\ViewHelper\AbstractConditionViewHelper
+{
+    public function initializeArguments()
+    {
+        parent::initializeArguments();
 
-	public function initializeArguments() {
-		parent::initializeArguments();
-		$this->registerArgument('condition', 'mixed', 'View helper condition expression, evaluated', TRUE);
-	}
+        $this->registerArgument('condition', 'mixed', 'View helper condition expression, evaluated', TRUE);
+    }
 
-	/**
-	 * renders <f:then> child if $condition is true, otherwise renders <f:else> child.
-	 *
-	 * @return string the rendered string
-	 * @author Sebastian Kurfürst <sebastian@typo3.org>
-	 * @author Bastian Waidelich <bastian@typo3.org>
-	 * @api
-	 */
-	public function render() {
-		$condition = $this->arguments['condition'];
+    /**
+     * @param array $arguments
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public static function evaluateCondition($arguments = NULL)
+    {
+        $condition = $arguments[ 'condition' ];
 
-		if (is_null($condition)) {
-			return $this->renderElseChild();
-		} elseif ($condition === TRUE) {
-			return $this->renderThenChild();
-		} elseif ($condition === FALSE) {
-			return $this->renderElseChild();
-		} elseif (is_array($condition)) {
-			return (count($condition) > 0);
-		} elseif ($condition instanceof Countable) {
-			return (count($condition) > 0);
-		} elseif (is_string($condition) && trim($condition) === '') {
-			if (trim($condition) === '') {
-				return $this->renderElseChild();
-			} else if (preg_match('/[a-z^]/', $condition)) {
-				$condition = '\'' . $condition . '\'';
-			}
-		} elseif (is_object($condition)) {
-			if ($condition instanceof Iterator && method_exists($condition, 'count')) {
-				return (call_user_method('count', $condition) > 0);
-			} else if ($condition instanceof DateTime) {
-				return $this->renderThenChild();
-			} else if ($condition instanceof stdClass) {
-				return $this->renderThenChild();
-			} else {
-				$access = t3lib_div::makeInstance('Tx_Extbase_Reflection_ObjectAccess');
-				$propertiesCount = count($access->getGettableProperties($condition));
-				if ($propertiesCount > 0) {
-					return $this->renderThenChild();
-				} else {
-					throw new Exception('Unknown object type in IfViewHelper condition: ' . get_class($condition), 1309493049);
-				}
-			}
-		}
-		$leftParenthesisCount = substr_count($condition, '(');
-		$rightParenthesisCount = substr_count($condition, ')');
-		$singleQuoteCount = substr_count($condition, '\'');
-		$escapedSingleQuoteCount = substr_count($condition, '\\\'');
-		if ($rightParenthesisCount !== $leftParenthesisCount) {
-			throw new Exception('Syntax error in IfViewHelper condition, mismatched number of opening and closing paranthesis', 1309490125);
-		}
-		if (($singleQuoteCount-$escapedSingleQuoteCount) % 2 != 0) {
-			throw new Exception('Syntax error in IfViewHelper condition, mismatched number of unescaped single quotes', 1309490125);
-		}
+        if (is_null($condition)) {
+            return FALSE;
+        } elseif ($condition === TRUE) {
+            return TRUE;
+        } elseif ($condition === FALSE) {
+            return FALSE;
+        } elseif (is_array($condition)) {
+            return (count($condition) > 0);
+        } elseif ($condition instanceof \Countable) {
+            return (count($condition) > 0);
+        } elseif (is_string($condition) && trim($condition) === '') {
+            if (trim($condition) === '') {
+                return FALSE;
+            } else if (preg_match('/[a-z^]/', $condition)) {
+                $condition = '\'' . $condition . '\'';
+            }
+        } elseif (is_object($condition)) {
+            if ($condition instanceof \Iterator && method_exists($condition, 'count')) {
+                return (call_user_func('count', $condition) > 0);
+            } else if ($condition instanceof \DateTime) {
+                return TRUE;
+            } else if ($condition instanceof \stdClass) {
+                return TRUE;
+            } else {
+                $access = GeneralUtility::makeInstance(ObjectAccess::class);
+                $propertiesCount = count($access->getGettableProperties($condition));
+                if ($propertiesCount > 0) {
+                    return TRUE;
+                } else {
+                    throw new \Exception('Unknown object type in IfViewHelper condition: ' . get_class($condition), 1309493049);
+                }
+            }
+        }
+        $leftParenthesisCount = substr_count($condition, '(');
+        $rightParenthesisCount = substr_count($condition, ')');
+        $singleQuoteCount = substr_count($condition, '\'');
+        $escapedSingleQuoteCount = substr_count($condition, '\\\'');
+        if ($rightParenthesisCount !== $leftParenthesisCount) {
+            throw new \Exception('Syntax error in IfViewHelper condition, mismatched number of opening and closing paranthesis', 1309490125);
+        }
+        if (($singleQuoteCount - $escapedSingleQuoteCount) % 2 != 0) {
+            throw new \Exception('Syntax error in IfViewHelper condition, mismatched number of unescaped single quotes', 1309490125);
+        }
 
-		$evaluation             = NULL;
-		$evaluationCondition    = trim($condition, ';');
-		$evaluationExpression   = '$evaluation = (bool) (' . $evaluationCondition . ');';
+        $evaluation = NULL;
+        $evaluationCondition = trim($condition, ';');
+        $evaluationExpression = '$evaluation = (bool) (' . $evaluationCondition . ');';
 
-		@eval($evaluationExpression);
-		if ($evaluation === NULL) {
-			throw new Exception('Syntax error while analyzing computed IfViewHelper expression: ' . $evaluationExpression, 1309537403);
-			return $this->renderElseChild();
-		} else if ($evaluation === TRUE) {
-			return $this->renderThenChild();
-		} else {
-			return $this->renderElseChild();
-		}
-	}
+        @eval($evaluationExpression);
+        if ($evaluation === NULL) {
+            throw new \Exception('Syntax error while analyzing computed IfViewHelper expression: ' . $evaluationExpression, 1309537403);
+        }
+
+        return $evaluation;
+    }
 }
-?>

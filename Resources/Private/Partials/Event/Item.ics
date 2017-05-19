@@ -1,9 +1,9 @@
-{namespace n=Tx_News_ViewHelpers}
-{namespace e=Tx_RoqNewsevent_ViewHelpers}
+{namespace n=GeorgRinger\News\ViewHelpers}
+{namespace e=Roquin\RoqNewsevent\ViewHelpers}
 
 BEGIN:VEVENT
 SUMMARY:<n:format.striptags>{newsItem.title}</n:format.striptags>
-DESCRIPTION:<n:format.striptags>{newsItem.teaser}</n:format.striptags>
+DESCRIPTION:<e:format.newlineToNewlineTag content="{f:format.stripTags(value: '{newsItem.teaser}')}" />
 DTSTAMP:<e:format.date format="%Y%m%dT%H%I%SZ" strftime="1">{newsItem.datetime}</e:format.date>
 
 <e:if condition="'<f:format.date>{newsItem.eventEnddate}</f:format.date>' != ''">

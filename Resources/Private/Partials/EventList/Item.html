@@ -1,138 +1,88 @@
-{namespace n=Tx_News_ViewHelpers}
-{namespace e=Tx_RoqNewsevent_ViewHelpers}
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+	  xmlns:n="http://typo3.org/ns/GeorgRinger/News/ViewHelpers"
+	  xmlns:e="http://typo3.org/ns/Roquin/RoqNewsevent/ViewHelpers"
+	  data-namespace-typo3-fluid="true">
+
 <!--
 	=====================
 		Partials/EventList/Item.html
 -->
-<div class="article articletype-{newsItem.type}{f:if(condition: newsItem.istopnews, then: ' topnews')}">
+<div class="article articletype-{newsItem.type}{f:if(condition: newsItem.istopnews, then: ' topnews')}" itemscope="itemscope" itemtype="http://schema.org/Article">
+	<n:excludeDisplayedNews newsItem="{newsItem}"/>
 	<!-- header -->
 	<div class="header">
 		<h3>
-			<e:link newsItem="{newsItem}" settings="{settings}">
-				{newsItem.title}
+			<e:link newsItem="{newsItem}" settings="{settings}" title="{newsItem.title}">
+				<span itemprop="headline">{newsItem.title}</span>
 			</e:link>
 		</h3>
 	</div>
 
-	<f:if condition="{newsItem.falMedia}">
-		<!-- fal media preview element -->
-		<f:then>
-			<div class="news-img-wrap">
-				<f:if condition="{newsItem.falMediaPreviews}">
-					<f:then>
-						<e:link newsItem="{newsItem}" settings="{settings}">
-							<f:alias map="{mediaElement: newsItem.falMediaPreviews.0}">
-								<f:if condition="{mediaElement.originalResource.type} == 2">
-									<f:image src="{mediaElement.uid}" treatIdAsReference="1" title="{mediaElement.originalResource.title}" alt="{mediaElement.originalResource.alternative}" maxWidth="{settings.list.media.image.maxWidth}" maxHeight="{settings.list.media.image.maxHeight}" />
-								</f:if>
-								<f:if condition="{mediaElement.originalResource.type} == 4">
-									<f:render partial="Detail/FalMediaVideo" arguments="{mediaElement: mediaElement}" />
-								</f:if>
-							</f:alias>
-						</e:link>
-					</f:then>
-					<f:else>
-						<f:if condition="{settings.displayDummyIfNoMedia}">
-							<span class="no-media-element">
-								<e:link newsItem="{newsItem}" settings="{settings}">
-									<f:image src="{settings.list.media.dummyImage}" title="" alt="" maxWidth="{settings.list.media.image.maxWidth}" maxHeight="{settings.list.media.image.maxHeight}" />
-								</e:link>
-							</span>
-						</f:if>
-					</f:else>
-				</f:if>
-
-			</div>
-		</f:then>
-		<f:else>
-
-	<f:if condition="{newsItem.media}">
+	<f:if condition="{newsItem.mediaPreviews}">
 		<!-- media preview element -->
 		<f:then>
-		<div class="news-img-wrap">
-				<f:if condition="{newsItem.mediaPreviews}">
-					<f:then>
-                        <e:link newsItem="{newsItem}" settings="{settings}">
-                            <f:alias map="{mediaElement: newsItem.mediaPreviews.0}">
-                                <f:if condition="{mediaElement.type} == 0">
-                                    <f:image
-                                        src="uploads/tx_news/{mediaElement.image}"
-                                        title="{mediaElement.title}"
-                                        alt="{mediaElement.alt}"
-                                        maxWidth="{settings.list.media.image.maxWidth}"
-                                        maxHeight="{settings.list.media.image.maxHeight}"
-                                    />
-                                </f:if>
-                                <f:if condition="{mediaElement.type} == 1">
+			<div class="news-img-wrap">
+				<n:link newsItem="{newsItem}" settings="{settings}" title="{newsItem.title}">
+					<f:alias map="{mediaElement: '{newsItem.mediaPreviews.0}'}">
+								<f:if condition="{mediaElement.originalResource.type} == 2">
+							<f:image image="{mediaElement}" title="{mediaElement.originalResource.title}" alt="{mediaElement.originalResource.alternative}" maxWidth="{f:if(condition: settings.media.maxWidth, then: settings.media.maxWidth, else: settings.list.media.image.maxWidth)}" maxHeight="{f:if(condition: settings.media.maxHeight, then: settings.media.maxHeight, else: settings.list.media.image.maxHeight)}"/>
+								</f:if>
+								<f:if condition="{mediaElement.originalResource.type} == 4">
                                     <f:render partial="Detail/MediaVideo" arguments="{mediaElement: mediaElement}"/>
                                 </f:if>
-                                <f:if condition="{mediaElement.type} == 2">
-                                    <f:render partial="Detail/MediaHtml" arguments="{mediaElement: mediaElement}"/>
+						<f:if condition="{mediaElement.originalResource.type} == 5">
+							<f:image image="{mediaElement}" title="{mediaElement.originalResource.title}" alt="{mediaElement.originalResource.alternative}" maxWidth="{f:if(condition: settings.media.maxWidth, then: settings.media.maxWidth, else: settings.list.media.image.maxWidth)}" maxHeight="{f:if(condition: settings.media.maxHeight, then: settings.media.maxHeight, else: settings.list.media.image.maxHeight)}"/>
                                 </f:if>
                             </f:alias>
-                        </e:link>
-					</f:then>
-					<f:else>
-						<f:if condition="{settings.displayDummyIfNoMedia}">
-							<span class="no-media-element">
-								<e:link newsItem="{newsItem}" settings="{settings}">
-									<f:image src="{settings.list.media.dummyImage}" title="" alt="" maxWidth="{settings.list.media.image.maxWidth}" maxHeight="{settings.list.media.image.maxHeight}" />
-								</e:link>
-							</span>
-						</f:if>
-					</f:else>
-				</f:if>
-
+				</n:link>
 		</div>
 		</f:then>
 		<f:else>
 			<f:if condition="{settings.displayDummyIfNoMedia}">
-				<f:then>
 					<div class="news-img-wrap">
-						<e:link newsItem="{newsItem}" settings="{settings}">
 							<span class="no-media-element">
-								<f:image src="{settings.list.media.dummyImage}" title="" alt="" maxWidth="{settings.list.media.image.maxWidth}" maxHeight="{settings.list.media.image.maxHeight}" />
+						<n:link newsItem="{newsItem}" settings="{settings}" title="{newsItem.title}">
+							<f:image src="{settings.list.media.dummyImage}" title="" alt="" maxWidth="{f:if(condition: settings.media.maxWidth, then: settings.media.maxWidth, else: settings.list.media.image.maxWidth)}" maxHeight="{f:if(condition: settings.media.maxHeight, then: settings.media.maxHeight, else: settings.list.media.image.maxHeight)}"/>
+						</n:link>
 							</span>
-						</e:link>
 					</div>
-				</f:then>
 			</f:if>
 		</f:else>
 	</f:if>
 
-		</f:else>
-	</f:if>
 
+	<!-- date -->
+	<span class="news-list-date">
+            <f:render partial="Event/Item" arguments="{newsItem: newsItem, settings:settings}"/>
+	</span>
 
-	<!-- teaser text -->
+	<!-- teaser -->
 	<div class="teaser-text">
+		<n:removeMediaTags>
 		<f:if condition="{newsItem.teaser}">
             <f:then>
-				<f:format.html><f:format.crop maxCharacters="{settings.cropMaxCharacters}" respectWordBoundaries="1">{newsItem.teaser}</f:format.crop></f:format.html>
+				<div itemprop="description">{newsItem.teaser -> f:format.crop(maxCharacters: '{settings.cropMaxCharacters}', respectWordBoundaries:'1') -> f:format.html()}</div>
             </f:then>
             <f:else>
-				<f:format.html><f:format.crop maxCharacters="{settings.cropMaxCharacters}" respectWordBoundaries="1">{newsItem.bodytext}</f:format.crop></f:format.html>
+				<div itemprop="description">{newsItem.bodytext -> f:format.crop(maxCharacters: '{settings.cropMaxCharacters}', respectWordBoundaries:'1') -> f:format.html()}</div>
             </f:else>
 		</f:if>
+		</n:removeMediaTags>
 
-        <!-- date -->
-        <span class="news-list-date">
-            <f:render partial="Event/Item" arguments="{newsItem: newsItem, settings:settings}"/>
-        </span>
-        
-        <div>
-        <e:link newsItem="{newsItem}" settings="{settings}" class="more">
+		<n:link newsItem="{newsItem}" settings="{settings}" class="more" title="{newsItem.title}">
             <f:translate key="more-link" />
-        </e:link>
-        </div>
+		</n:link>
 	</div>
 
 	<!-- footer information -->
-	<div class="footer" role="contentinfo">
+	<div class="footer">
 		<p>
 			<!-- date -->
 			<span class="news-list-date">
-
+				<time datetime="{f:format.date(date:newsItem.datetime, format:'Y-m-d')}">
+					<f:format.date format="{f:translate(key:'dateFormat')}">{newsItem.datetime}</f:format.date>
+					<meta itemprop="datePublished" content="{f:format.date(date:newsItem.datetime, format:'Y-m-d')}" />
+				</time>
 			</span>
 
 			<f:if condition="{newsItem.firstCategory}">
@@ -142,7 +92,7 @@
 
 			<f:if condition="{newsItem.tags}">
 				<!-- Tags -->
-				<span class="news-list-tags">
+				<span class="news-list-tags" itemprop="keywords">
 				<f:for each="{newsItem.tags}" as="tag">
 					{tag.title}
 				</f:for>
@@ -158,3 +108,4 @@
 		</p>
 	</div>
 </div>
+</html>

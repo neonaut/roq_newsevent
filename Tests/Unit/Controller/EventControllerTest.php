@@ -1,9 +1,10 @@
 <?php
+namespace Roquin\RoqNewsevent\Tests\Unit\Controller;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 
+ *  (c) 2012
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -24,7 +25,7 @@
  ***************************************************************/
 
 /**
- * Test case for class Tx_Roq_newsevent_Controller_EventController.
+ * Test case for class \Roquin\RoqNewsevent\Controller\EventController
  *
  * @version $Id$
  * @copyright Copyright belongs to the respective authors
@@ -34,26 +35,29 @@
  * @subpackage News event
  *
  */
-class Tx_Roq_newsevent_Controller_EventControllerTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
-	/**
-	 * @var Tx_RoqNewsevent_Domain_Model_Event
-	 */
-	protected $fixture;
+class EventControllerTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
+{
+    /**
+     * @var \Roquin\RoqNewsevent\Domain\Model\Event
+     */
+    protected $fixture;
 
-	public function setUp() {
-		$this->fixture = new Tx_RoqNewsevent_Domain_Model_Event();
-	}
+    public function setUp()
+    {
+        $this->fixture = new \Roquin\RoqNewsevent\Domain\Model\Event();
+    }
 
-	public function tearDown() {
-		unset($this->fixture);
-	}
+    public function tearDown()
+    {
+        unset($this->fixture);
+    }
 
-	/**
-	 * @test
-	 */
-	public function dummyMethod() {
-		$this->markTestIncomplete();
-	}
+    /**
+     * @test
+     */
+    public function dummyMethod()
+    {
+        $this->markTestIncomplete();
+    }
 
 }
-?>
