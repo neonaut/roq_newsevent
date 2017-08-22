@@ -10,7 +10,8 @@ namespace Roquin\RoqNewsevent\Controller;
  */
 use Roquin\RoqNewsevent\Domain\Model\Event;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-
+use \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use \TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 /**
  * @package TYPO3
  * @subpackage roq_newsevent
@@ -51,7 +52,7 @@ class EventController extends \GeorgRinger\News\Controller\NewsController
      * @param \TYPO3\CMS\Extbase\Mvc\View\ViewInterface $view
      * @return void
      */
-    protected function setViewConfiguration(\TYPO3\CMS\Extbase\Mvc\View\ViewInterface $view)
+    protected function setViewConfiguration(ViewInterface $view)
     {
         $extbaseFrameworkConfiguration =
             $this->configurationManager->getConfiguration(\TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK);
@@ -79,29 +80,29 @@ class EventController extends \GeorgRinger\News\Controller\NewsController
      * @param \TYPO3\CMS\Extbase\Mvc\View\ViewInterface $view
      * @return void
      */
-    protected function setEventViewConfiguration(\TYPO3\CMS\Extbase\Mvc\View\ViewInterface $view)
+    protected function setEventViewConfiguration(ViewInterface $view)
     {
         // Template Path Override
-        $extbaseFrameworkConfiguration =
-            $this->configurationManager->getConfiguration(\TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK);
+        $config =
+            $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK);
 
-        if (isset($extbaseFrameworkConfiguration['view']['event']['templateRootPath'])
-            && strlen($extbaseFrameworkConfiguration['view']['event']['templateRootPath']) > 0
-            && method_exists($view, 'setTemplateRootPath')
+
+        if (isset($config['view']['event']['templateRootPaths'])
+            && method_exists($view, 'setTemplateRootPaths')
         ) {
-            $view->setTemplateRootPath(GeneralUtility::getFileAbsFileName($extbaseFrameworkConfiguration['view']['event']['templateRootPath']));
+            $view->setTemplateRootPaths($config['view']['event']['templateRootPaths']);
         }
-        if (isset($extbaseFrameworkConfiguration['view']['event']['layoutRootPath'])
-            && strlen($extbaseFrameworkConfiguration['view']['event']['layoutRootPath']) > 0
-            && method_exists($view, 'setLayoutRootPath')
+
+        if (isset($configuration['view']['event']['layoutRootPaths'])
+            && method_exists($view, 'setLayoutRootPaths')
         ) {
-            $view->setLayoutRootPath(GeneralUtility::getFileAbsFileName($extbaseFrameworkConfiguration['view']['event']['layoutRootPath']));
+            $view->setLayoutRootPaths($config['view']['event']['layoutRootPaths']);
         }
-        if (isset($extbaseFrameworkConfiguration['view']['event']['partialRootPath'])
-            && strlen($extbaseFrameworkConfiguration['view']['event']['partialRootPath']) > 0
-            && method_exists($view, 'setPartialRootPath')
+
+        if (isset($config['view']['event']['partialRootPaths'])
+            && method_exists($view, 'setPartialRootPaths')
         ) {
-            $view->setPartialRootPath(GeneralUtility::getFileAbsFileName($extbaseFrameworkConfiguration['view']['event']['partialRootPath']));
+            $view->setPartialRootPaths($config['view']['event']['partialRootPaths']);
         }
     }
 
@@ -116,7 +117,7 @@ class EventController extends \GeorgRinger\News\Controller\NewsController
         $demand = parent::createDemandObjectFromSettings($settings);
         $orderByAllowed = $demand->getOrderByAllowed();
 
-        if (sizeof($orderByAllowed) > 0) {
+        if (count($orderByAllowed) > 0) {
             $orderByAllowed .= ',';
         }
 
@@ -128,7 +129,7 @@ class EventController extends \GeorgRinger\News\Controller\NewsController
             $demand->setOrderByAllowed($orderByAllowed . 'tx_roqnewsevent_startdate,tx_roqnewsevent_starttime');
         }
 
-        if ($demand->getArchiveRestriction() == 'archived') {
+        if ($demand->getArchiveRestriction() === 'archived') {
             if ($settings['event']['archived']['orderBy']) {
                 $demand->setOrder($settings['event']['archived']['orderBy']);
             } else {
@@ -170,7 +171,7 @@ class EventController extends \GeorgRinger\News\Controller\NewsController
         }
 
         $this->view->assignMultiple(array(
-            'listPid' => ($this->settings['listPid'] ? $this->settings['listPid'] : $GLOBALS['TSFE']->id),
+            'listPid' => $this->settings['listPid'] ?: $GLOBALS['TSFE']->id,
             'dateField' => $dateField,
             'events' => $eventRecords,
             'overwriteDemand' => $overwriteDemand,
@@ -188,7 +189,7 @@ class EventController extends \GeorgRinger\News\Controller\NewsController
         $this->settings = $this->initializeSettings($this->settings);
         $demand = $this->eventCreateDemandObjectFromSettings($this->settings);
 
-        if ($this->settings['disableOverrideDemand'] != 1 && $overwriteDemand !== null) {
+        if ($this->settings['disableOverrideDemand'] !== 1 && $overwriteDemand !== null) {
             $demand = $this->overwriteDemandObject($demand, $overwriteDemand);
         }
 
@@ -213,7 +214,7 @@ class EventController extends \GeorgRinger\News\Controller\NewsController
     {
         $this->settings = $this->initializeSettings($this->settings);
 
-        if (is_null($event)) {
+        if (null === $event) {
             if ((int)$this->settings['singleNews'] > 0) {
                 $previewNewsId = $this->settings['singleNews'];
             } elseif ($this->request->hasArgument('news_preview')) {

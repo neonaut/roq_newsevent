@@ -5,10 +5,10 @@ config.tx_extbase {
             GeorgRinger\News\Domain\Model\News {
                 subclasses {
                     Tx_RoqNewsevent_Event = Roquin\RoqNewsevent\Domain\Model\Event
-          		}
+                }
             }
 
-			Roquin\RoqNewsevent\Domain\Model\Event {
+            Roquin\RoqNewsevent\Domain\Model\Event {
                 mapping {
                     tableName = tx_news_domain_model_news
 
@@ -22,12 +22,12 @@ config.tx_extbase {
                     }
                 }
             }
-    	}
+        }
     }
 
     objects {
         GeorgRinger\News\Controller\NewsController {
-         className = Roquin\RoqNewsevent\Controller\EventController
+            className = Roquin\RoqNewsevent\Controller\EventController
         }
     }
 }
@@ -36,21 +36,28 @@ config.tx_extbase {
 plugin.tx_news {
     view {
         event {
-            partialRootPath = {$plugin.roq_newsevent.view.partialRootPath}
-            templateRootPath = {$plugin.roq_newsevent.view.templateRootPath}
+            templateRootPaths {
+                #0 = EXT:roq_newsevent/Resources/Private/Templates/
+                1 = {$plugin.roq_newsevent.view.templateRootPath}
+            }
+
+            partialRootPaths {
+                #0 = EXT:roq_newsevent/Resources/Private/Partials/
+                1 = {$plugin.roq_newsevent.view.partialRootPath}
+            }
         }
-	}
+    }
 
-	settings {
-    	event {
-    	    orderByAllowed = tx_roqnewsevent_startdate,tx_roqnewsevent_starttime
-    	    orderBy = tx_roqnewsevent_startdate ASC, tx_roqnewsevent_starttime ASC
+    settings {
+        event {
+            orderByAllowed = tx_roqnewsevent_startdate,tx_roqnewsevent_starttime
+            orderBy = tx_roqnewsevent_startdate ASC, tx_roqnewsevent_starttime ASC
 
-    	    archived {
+            archived {
                 orderBy = tx_roqnewsevent_startdate DESC, tx_roqnewsevent_starttime DESC
             }
 
             dateField = eventStartdate
-    	}
+        }
     }
 }

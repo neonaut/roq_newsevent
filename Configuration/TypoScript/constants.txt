@@ -1,6 +1,8 @@
 plugin.roq_newsevent {
     view {
-        templateRootPath = EXT:roq_newsevent/Resources/Private/Templates
+        # cat=plugin.tx_roq_newsevent/file; type=string; label=Path to template root (FE)
+        templateRootPath = EXT:roq_newsevent/Resources/Private/Partials
+        # cat=plugin.tx_roq_newsevent/file; type=string; label=Path to partial root (FE)
         partialRootPath = EXT:roq_newsevent/Resources/Private/Partials
     }
 }
